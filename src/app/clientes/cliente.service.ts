@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Cliente} from './cliente';
-import {CLIENTES } from './clientes.json'
 import { Observable, of, throwError } from 'rxjs';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {map, catchError} from 'rxjs/operators';
@@ -17,13 +16,25 @@ export class ClienteService {
   constructor(private http: HttpClient, private router: Router) { }
 
   getClientes(): Observable<Cliente[]> {
-    return this.http.get<Cliente[]>(this.urlEndPoint);
+    return this.http.get<Cliente[]>(this.urlEndPoint).pipe(
+      map(response => {
+        let clientes = response as Cliente[];
+
+        return clientes.map(cliente => {
+          cliente.nombre = cliente.nombre.toUpperCase();
+          return cliente;
+        });
+      })
+    )
   }
 
   create(cliente: Cliente) : Observable<Cliente> {
     return this.http.post(this.urlEndPoint, cliente,{headers: this.httpHeaders} ).pipe(
       map((response: any) => response.cliente as Cliente),
       catchError(e =>{
+        if(e.status == 400){
+          return throwError(() => e);
+        }
         console.error(e.error.mensaje);
         swal(e.error.mensaje, e.error.error, 'error');
         return throwError(() => e);
@@ -45,6 +56,11 @@ export class ClienteService {
   update(cliente:Cliente): Observable<any>{
     return this.http.put<any>(`${this.urlEndPoint}/${cliente.id}`, cliente, {headers: this.httpHeaders}).pipe(
       catchError(e =>{
+
+        if(e.status == 400){
+          return throwError(() => e);
+        }
+
         console.error(e.error.mensaje);
         swal(e.error.mensaje, e.error.error, 'error');
         return throwError(() => e);
