@@ -18,7 +18,6 @@ export class ClientesComponent implements OnInit {
   private activatedRoute: ActivatedRoute) { }
 
   ngOnInit() {
-    let page = 0;
     this.activatedRoute.paramMap.subscribe( params => {
       let page: number = +params.get('page');
       if(!page){
