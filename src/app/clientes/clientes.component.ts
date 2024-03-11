@@ -1,42 +1,44 @@
 import { Component, OnInit } from '@angular/core';
-import { Cliente} from './cliente';
+import { Cliente } from './cliente';
 import { ClienteService } from './cliente.service';
-import  swal from 'sweetalert2';
-import {tap} from 'rxjs/operators';
-import {ActivatedRoute } from '@angular/router';
+import { ModalService } from './detalle/modal.service';
+import swal from 'sweetalert2';
+import { tap } from 'rxjs/operators';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-clientes',
-  templateUrl: './clientes.component.html'
+  templateUrl: './clientes.component.html',
 })
 export class ClientesComponent implements OnInit {
-
   clientes: Cliente[];
   paginador: any;
+  clienteSeleccionado: Cliente;
 
-  constructor(private clienteService: ClienteService,
-  private activatedRoute: ActivatedRoute) { }
+  constructor(
+    private clienteService: ClienteService,
+    private activatedRoute: ActivatedRoute,
+    private modalService: ModalService
+  ) {}
 
   ngOnInit() {
-    this.activatedRoute.paramMap.subscribe( params => {
+    this.activatedRoute.paramMap.subscribe((params) => {
       let page: number = +params.get('page');
-      if(!page){
+      if (!page) {
         page = 0;
       }
-      this.clienteService.getClientes(page).pipe(
-        tap(response =>{
-          (response.content as Cliente[]).forEach(cliente => {
-          });
-        })
-       ).subscribe(
-         response =>{
-           this.clientes = response.content as Cliente[];
-           this.paginador = response;
-          }
-       );
-    }
-    )
-
+      this.clienteService
+        .getClientes(page)
+        .pipe(
+          tap((response) => {
+            (response.content as Cliente[]).forEach((cliente) => {});
+          })
+        )
+        .subscribe((response) => {
+          this.clientes = response.content as Cliente[];
+          this.paginador = response;
+        });
+    });
   }
 
   delete(cliente: Cliente): void {
@@ -52,16 +54,19 @@ export class ClientesComponent implements OnInit {
       confirmButtonClass: 'btn btn-success',
       cancelButtonClass: 'btn btn-danger',
       reverseButtons: true,
-      buttonsStyling: false
+      buttonsStyling: false,
     }).then((result) => {
       if (result.value) {
-
-        this.clienteService.delete(cliente.id).subscribe( response => {
-              this.clientes = this.clientes.filter(clie => clie !== cliente);
-              swal('Borrado!','Your file has been deleted.','success');
-         });
+        this.clienteService.delete(cliente.id).subscribe((response) => {
+          this.clientes = this.clientes.filter((clie) => clie !== cliente);
+          swal('Borrado!', 'Your file has been deleted.', 'success');
+        });
       }
     });
   }
 
+  abrirModal(cliente: Cliente) {
+    this.clienteSeleccionado = cliente;
+    this.modalService.abrirModal();
+  }
 }
