@@ -22,9 +22,7 @@ export class DetalleComponent implements OnInit {
     // do nothing.
   }
 
-  ngOnInit() {
-    // do nothing.
-  }
+  ngOnInit() {}
 
   seleccionarFoto(event) {
     this.fotoSeleccionada = event.target.files[0];
@@ -53,6 +51,7 @@ export class DetalleComponent implements OnInit {
             let response: any = event.body;
             this.cliente = response.cliente as Cliente;
 
+            this.modalService.notificarUpload.emit(this.cliente);
             swal(
               'La foto se ha subido completamente!',
               response.mensaje,
