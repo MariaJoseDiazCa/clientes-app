@@ -5,6 +5,7 @@ import { ModalService } from './detalle/modal.service';
 import swal from 'sweetalert2';
 import { tap } from 'rxjs/operators';
 import { ActivatedRoute } from '@angular/router';
+import { AuthService } from '../usuarios/auth.service';
 
 @Component({
   selector: 'app-clientes',
@@ -18,7 +19,8 @@ export class ClientesComponent implements OnInit {
   constructor(
     private clienteService: ClienteService,
     private activatedRoute: ActivatedRoute,
-    private modalService: ModalService
+    private modalService: ModalService,
+    public authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -40,14 +42,14 @@ export class ClientesComponent implements OnInit {
         });
     });
 
-    this.modalService.notificarUpload.subscribe(cliente => {
-      this.clientes = this.clientes.map(clienteOriginal =>{
-        if(cliente.id == clienteOriginal.id){
+    this.modalService.notificarUpload.subscribe((cliente) => {
+      this.clientes = this.clientes.map((clienteOriginal) => {
+        if (cliente.id == clienteOriginal.id) {
           clienteOriginal.foto = cliente.foto;
         }
         return clienteOriginal;
-      })
-    })
+      });
+    });
   }
 
   delete(cliente: Cliente): void {
